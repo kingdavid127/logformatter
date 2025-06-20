@@ -18,7 +18,7 @@ This guide explains how to set up the project.
 The code is precompiled, but if you want to compile it yourself or make changes here are the instructions.
 
 ### Install npm Dependencies
-1. Navigate to the project root directory in your terminal.
+1. Navigate to the js directory in your terminal.
 2. Run the following command to install the required Node.js dependencies:
    ```bash
    npm install
