@@ -18616,7 +18616,7 @@ function TS(n, e) {
         if (!W.ok) throw new Error("Network response was not ok");
         return W.json();
       }).then((W) => {
-        window.location.href = `/logs.php?id=${W.id}`;
+        window.location.href = `/index.php?id=${W.id}`;
       }).catch((W) => {
         console.error("Save log failed:", W);
       });
