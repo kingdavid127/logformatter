@@ -1,0 +1,21 @@
+{
+  "name": "cf_logs",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^5.0.0",
+    "@tailwindcss/vite": "^4.1.8",
+    "daisyui": "^5.0.43",
+    "svelte": "^5.2.7",
+    "tailwindcss": "^4.1.8",
+    "vite": "^6.0.1"
+  },
+  "dependencies": {
+    "codemirror": "^6.0.1",
+    "dompurify": "^3.2.6"
+  }
+}
