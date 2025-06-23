@@ -3,19 +3,19 @@
     import DOMPurify from "dompurify";
     import {onMount} from "svelte";
     import {EditorView, basicSetup} from "codemirror";
-    import { fade } from 'svelte/transition';
+    import {fade} from 'svelte/transition';
 
-    let { id = null } = $props();
+    let {id = null} = $props();
     let darkTheme = $state(localStorage.getItem('darkTheme') ?? 'dark');
     let lightTheme = $state(localStorage.getItem('lightTheme') ?? 'light');
     let darkMode = $state(JSON.parse(localStorage.getItem('darkMode') ?? 'true'));
     let showThemeMenu = $state(false);
     let theme = $derived.by(() => {
-       if (darkMode) {
-           return darkTheme;
-       } else {
-           return lightTheme;
-       }
+        if (darkMode) {
+            return darkTheme;
+        } else {
+            return lightTheme;
+        }
     });
     const lightThemes = [
         'acid',
@@ -127,27 +127,29 @@
         }
     });
 
-    function wrapText(text, maxLength = 79) {
-        const words = text.split(/\s+/);
+    function wrapText(text, maxLength = 77) {
+        const rawLines = text.split(/\n/);
         let lines = [];
         let currentLine = '';
 
-        for (const word of words) {
-            if ((currentLine + ' ' + word).trim().length <= maxLength) {
-                currentLine += (currentLine ? ' ' : '') + word;
-            } else {
-                if (currentLine) lines.push(currentLine);
-                currentLine = word;
-
-                // Handle case where word itself is longer than maxLength
-                while (currentLine.length > maxLength) {
-                    lines.push(currentLine.slice(0, maxLength));
-                    currentLine = currentLine.slice(maxLength);
+        for (const rawLine of rawLines) {
+            currentLine = '';
+            if (rawLine.length > 0) {
+                let words = rawLine.split(" ");
+                for (const word of words) {
+                    if ((currentLine + ' ' + word).trim().length <= maxLength) {
+                        currentLine += (currentLine ? ' ' : '') + word;
+                    } else {
+                        lines.push(currentLine.trim());
+                        currentLine = word;
+                    }
                 }
+                lines.push(currentLine.trim());
+            } else {
+                lines.push(currentLine);
             }
         }
 
-        if (currentLine) lines.push(currentLine);
 
         lines = lines.map((line) => {
             return `${wrapTab} + ${line}`;
@@ -213,7 +215,7 @@
     }
 
     function stripHtml(str) {
-        const clean = DOMPurify.sanitize(str, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+        const clean = DOMPurify.sanitize(str, {ALLOWED_TAGS: [], ALLOWED_ATTR: []});
         return clean;
     }
 
@@ -254,17 +256,17 @@
                 },
                 body: JSON.stringify({log: editableLog})
             })
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
-            .then(data => {
-                window.location.href = `/index.php?id=${data.id}`;
-            })
-            .catch(error => {
-                console.error('Save log failed:', error);
-                // You can reject or show UI feedback here
-            });
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    window.location.href = `/index.php?id=${data.id}`;
+                })
+                .catch(error => {
+                    console.error('Save log failed:', error);
+                    // You can reject or show UI feedback here
+                });
         }
     }
 
@@ -290,7 +292,7 @@
     <div class="navbar bg-base-100 text-base-content shadow-sm absolute top-0 z-10">
         <div class="flex items-center m-2">
             <button onclick={() => showThemeMenu = !showThemeMenu} class="w-32 btn btn-light uppercase">{theme}</button>
-            <input type="checkbox" bind:value={theme} class="theme-controller invisible" checked />
+            <input type="checkbox" bind:value={theme} class="theme-controller invisible" checked/>
             {#if showThemeMenu}
                 <div class="absolute left-0 top-full join join-vertical">
                     {#if darkMode}
@@ -302,7 +304,7 @@
                                     class="btn join-item"
                                     bind:group={darkTheme}
                                     aria-label={dark}
-                                    value={dark} />
+                                    value={dark}/>
                         {/each}
                     {:else}
                         {#each lightThemes as light}
@@ -313,7 +315,7 @@
                                     class="btn join-item"
                                     bind:group={lightTheme}
                                     aria-label={light}
-                                    value={light} />
+                                    value={light}/>
                         {/each}
                     {/if}
                 </div>
@@ -329,11 +331,11 @@
                         stroke-width="2"
                         stroke-linecap="round"
                         stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="5" />
+                    <circle cx="12" cy="12" r="5"/>
                     <path
-                            d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
+                            d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>
                 </svg>
-                <input type="checkbox" bind:checked={darkMode} class="toggle" />
+                <input type="checkbox" bind:checked={darkMode} class="toggle"/>
                 <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="20"
@@ -367,19 +369,21 @@
                     Tools
                 </div>
                 <div role="tablist" class="tabs tabs-border">
-                    <a role="tab" class={tab === 'logs' ? 'tab tab-active text-base-content' : 'tab text-base-content'} onclick={() => tab = 'logs'} >Logs</a>
+                    <a role="tab" class={tab === 'logs' ? 'tab tab-active text-base-content' : 'tab text-base-content'} onclick={() => tab = 'logs'}>Logs</a>
                     <a role="tab" class={tab === 'wrap' ? 'tab tab-active text-base-content' : 'tab text-base-content'} onclick={() => tab = 'wrap'}>Wrap Chop</a>
                 </div>
             </div>
 
             <div class="mx-auto max-w-screen-xl px-6 py-12 font-sans mpy-16 lg:py-0 {tab === 'logs' ? '' : 'hidden'}">
                 <div class="my-4">
-                    <input type="file" accept=".txt" onchange={handleFileUpload} class="file-input file-input-primary w-full max-w-xs mb-4" />
+                    <input type="file" accept=".txt" onchange={handleFileUpload} class="file-input file-input-primary w-full max-w-xs mb-4"/>
                 </div>
                 <div class="flex mb-2 justify-between">
                     <div role="tablist" class="tabs tabs-border">
-                        <a role="tab" class={logTab === 'raw' ? 'tab tab-active text-base-content' : 'tab text-base-content'} onclick={() => {logTab = 'raw'; enablePublish = false;}} >Raw</a>
-                        <a role="tab" class={logTab === 'format' ? 'tab tab-active text-base-content' : 'tab text-base-content'} onclick={() => {highlight(editableLog); logTab = 'format';}}>Formatted</a>
+                        <a role="tab" class={logTab === 'raw' ? 'tab tab-active text-base-content' : 'tab text-base-content'}
+                           onclick={() => {logTab = 'raw'; enablePublish = false;}}>Raw</a>
+                        <a role="tab" class={logTab === 'format' ? 'tab tab-active text-base-content' : 'tab text-base-content'}
+                           onclick={() => {highlight(editableLog); logTab = 'format';}}>Formatted</a>
                     </div>
                     {#if message}
                         <div transition:fade class="text-red-500 self-center p-2">{message}</div>
@@ -409,7 +413,7 @@
                     <ul class="menu bg-base-200 rounded-box w-56 p-0">
                         <li>
                             <a class={wrapTab === 'desc' ? 'menu-active text-white' : 'text-base-content'}
-                                    onclick={() => wrapTab = 'desc'}
+                               onclick={() => wrapTab = 'desc'}
                             >
                                 Description
                             </a>
@@ -430,7 +434,7 @@
                         </li>
                     </ul>
                     <label class="label text-base-content">
-                        <input type="checkbox" bind:checked={noReturn} class="checkbox checkbox-sm" />
+                        <input type="checkbox" bind:checked={noReturn} class="checkbox checkbox-sm"/>
                         No return (; format)
                     </label>
                 </div>
