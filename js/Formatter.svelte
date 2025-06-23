@@ -185,6 +185,8 @@
             .replace(/ \(PK\) /g, '<span class="text-yellow-300 font-bold">$&</span>')
             // damage verbs
             .replace(/ misses|scratches|grazes|hits|injures|wounds|mauls|decimates|devastates|maims|MUTILATES|EVISCERATES|DISMEMBERS|MASSACRES|MANGLES|\*\*\* DEMOLISHES \*\*\*|\*\*\* DEVASATATES \*\*\*|=== OBLITERATES ===|>>> ANNIHILATES <<<|<<< ERADICATES >>>|does UNSPEAKABLE things /g, '<span class="text-yellow-300">$&</span>')
+            .replace(/ toasts|parches|heats|blisters|burns|roasts|smolders|scalds|singes|BROILS|SEARS|CHARS|RAZES|TORCHES|\*\*\* BLASTS \*\*\*|\*\*\* SCORCHES \*\*\*|=== INCINERATES ===|>>> CAUTERIZES <<<|<<< CREMATES >>> /g, '<span class="text-yellow-300">$&</span>')
+            .replace(/ concerns|disquiets|daunts|scares|jolts|startles|flusters|alarms|stupefies|DISTRESSES|DISTURBS|STAGGERS|RATTLES|FRIGHTENS|\*\*\* TRAUMATIZES \*\*\*|\*\*\* HARROWS \*\*\*|=== TERRIFIES ===|>>> HORRIFIES <<<|<<< PETRIFIES >>> /g, '<span class="text-yellow-300">$&</span>')
             .replace(
                 /<span class="text-yellow-300">(.*?)<\/span>(?= you\b)/g, '<span class="text-red-500">$1</span>'
             )
