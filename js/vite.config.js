@@ -15,10 +15,13 @@ export default {
       tailwindcss(),
   ],
   build: {
-    lib: {
-      entry: 'main.js',
-      name: 'LogFormatter',
-    formats: ['es']
+    manifest: true,
+    rollupOptions: {
+        input: 'main.js',
+        output: {
+            entryFileNames: '[name].[hash].js',
+            assetFileNames: '[name].[hash].[ext]',
+        }
     }
   }
 };

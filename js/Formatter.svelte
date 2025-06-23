@@ -128,37 +128,41 @@
     });
 
     function wrapText(text, maxLength = 77) {
-        const rawLines = text.split(/\n/);
-        let lines = [];
-        let currentLine = '';
+        if (text) {
+            const rawLines = text.split(/\n/);
+            let lines = [];
+            let currentLine = '';
 
-        for (const rawLine of rawLines) {
-            currentLine = '';
-            if (rawLine.length > 0) {
-                let words = rawLine.split(" ");
-                for (const word of words) {
-                    if ((currentLine + ' ' + word).trim().length <= maxLength) {
-                        currentLine += (currentLine ? ' ' : '') + word;
-                    } else {
-                        lines.push(currentLine.trim());
-                        currentLine = word;
+            for (const rawLine of rawLines) {
+                currentLine = '';
+                if (rawLine) {
+                    let words = rawLine.split(" ");
+                    for (const word of words) {
+                        if ((currentLine + ' ' + word).trim().length <= maxLength) {
+                            currentLine += (currentLine ? ' ' : '') + word;
+                        } else {
+                            lines.push(currentLine.trim());
+                            currentLine = word;
+                        }
                     }
+                    lines.push(currentLine.trim());
+                } else {
+                    lines.push(currentLine);
                 }
-                lines.push(currentLine.trim());
-            } else {
-                lines.push(currentLine);
             }
-        }
 
 
-        lines = lines.map((line) => {
-            return `${wrapTab} + ${line}`;
-        });
+            lines = lines.map((line) => {
+                return `${wrapTab} + ${line}`;
+            });
 
-        if (noReturn) {
-            return lines.join(';');
+            if (noReturn) {
+                return lines.join(';');
+            } else {
+                return lines.join('\n');
+            }
         } else {
-            return lines.join('\n');
+            return '';
         }
     }
 
