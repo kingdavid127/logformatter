@@ -58,7 +58,6 @@
         'synthwave',
     ];
 
-    let logs = $state([]);
     let message = $state('');
     let rawLog = '';
     let editableLog = '';
@@ -84,7 +83,6 @@
                 loading = false;
             });
         } else {
-            logs = fetch()
             const updateListener = EditorView.updateListener.of((update) => {
                 if (update.docChanged) {
                     editableLog = update.state.doc.toString();
@@ -398,10 +396,12 @@
         <div class="{loading ? 'hidden' : ''}">
             <!-- Logs Index -->
             <div class="mx-auto max-w-screen-xl px-6 py-12 font-sans mpy-16 lg:py-0 {tab === 'logs' ? '' : 'hidden'}">
+                <button type="button" onclick={() => tab = 'format'}>Add</button>
                 <Report {page} {totalPages} getData={getLogs} />
             </div>
             <!-- Log Formatter -->
             <div class="mx-auto max-w-screen-xl px-6 py-12 font-sans mpy-16 lg:py-0 {tab === 'format' ? '' : 'hidden'}">
+                <button type="button" onclick={() => tab = 'logs'}>Log Index</button>
                 <div class="my-4">
                     <input type="file" accept=".txt" onchange={handleFileUpload} class="file-input file-input-primary w-full max-w-xs mb-4"/>
                 </div>
