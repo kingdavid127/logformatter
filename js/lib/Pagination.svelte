@@ -82,12 +82,6 @@
     function choosePage() {
         if (inputValue <= totalPages) {
             goToPage(inputValue);
-        } else {
-            Str.getString('error:pageexceedsmax', 'local_nexus').then(data => {
-                Toast.add(data, {
-                    type: 'warning',
-                });
-            }).catch();
         }
     }
 </script>
