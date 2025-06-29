@@ -1,6 +1,4 @@
 <script>
-    import {getContext} from "svelte";
-
     let { page, currentPage, goToPage, label = '' } = $props();
 
     let classes = $state('page-item');
