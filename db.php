@@ -24,6 +24,8 @@ CREATE TABLE cf_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(50) NOT NULL,
     log MEDIUMTEXT NOT NULL,
+    timecreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_timecreated (timecreated);
     FULLTEXT (title, log)
 );
  */
@@ -36,7 +38,10 @@ To add full text index if missing:
 ALTER TABLE cf_logs ADD FULLTEXT (title, log);
 
 To change log to MEDIUMTEXT column (if you already created it as TEXT:
-ALTER TABLE your_table_name
+ALTER TABLE cf_logs
 MODIFY COLUMN log MEDIUMTEXT NOT NULL;
 
+ALTER TABLE cf_logs ADD COLUMN timecreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE cf_logs
+ADD INDEX idx_timecreated (timecreated);
  */
