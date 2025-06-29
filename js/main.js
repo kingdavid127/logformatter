@@ -1,4 +1,4 @@
-import Formatter from './Formatter.svelte';
+import Main from './Main.svelte';
 import {mount} from "svelte";
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -14,6 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 id: logId
             };
         }
-        mount(Formatter, params);
+        mount(Main, params);
     }
 });

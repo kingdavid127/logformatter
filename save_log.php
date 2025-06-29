@@ -3,6 +3,9 @@
 header('Content-Type: application/json');
 require_once 'db.php';
 
+
+const MAXLIMIT = 500000;
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['error' => 'Method not allowed']);
@@ -15,6 +18,12 @@ $log = $data['log'] ?? '';
 if (!$log) {
     http_response_code(400);
     echo json_encode(['error' => 'Missing log']);
+    exit;
+}
+
+if (strlen($log) > MAXLIMIT) {
+    http_response_code(413);
+    echo json_encode(['error' => 'Log too large.']);
     exit;
 }
 

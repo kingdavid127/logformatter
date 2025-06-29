@@ -4,6 +4,7 @@
     import {onMount} from "svelte";
     import {EditorView, basicSetup} from "codemirror";
     import {fade} from 'svelte/transition';
+    import Report from "./lib/Report.svelte";
 
     let {id = null} = $props();
     let darkTheme = $state(localStorage.getItem('darkTheme') ?? 'dark');
@@ -57,6 +58,7 @@
         'synthwave',
     ];
 
+    let logs = $state([]);
     let message = $state('');
     let rawLog = '';
     let editableLog = '';
@@ -64,7 +66,7 @@
     let rawText = $state('');
     let choppedText = $state('');
     let logTab = $state('raw');
-    let tab = $state(localStorage.getItem('tab') ?? 'logs');
+    let tab = $state('logs');
     let wrapTab = $state(localStorage.getItem('wrapTab') ?? 'desc');
     let noReturn = $state(JSON.parse(localStorage.getItem('noReturn') ?? 'true'));
     let editorElement = null;
@@ -82,6 +84,7 @@
                 loading = false;
             });
         } else {
+            logs = fetch()
             const updateListener = EditorView.updateListener.of((update) => {
                 if (update.docChanged) {
                     editableLog = update.state.doc.toString();
@@ -245,10 +248,29 @@
             });
     }
 
+    function getLogs(page) {
+        return new Promise((resolve, reject) => {
+            fetch('/get_logs.php', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({page: page})
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                resolve(response.json());
+            })
+            .catch(error => {
+                console.error('Get logs failed:', error);
+            });
+        });
+    }
+
     function publishLog() {
         enablePublish = false;
         const charCount = editableLog.length;
-        if (charCount > 65535) {
+        if (charCount > 500000) {
             enablePublish = false;
             message = 'Log too long!';
             setTimeout(() => {
@@ -296,7 +318,7 @@
 
 <div class="bg-base-200 text-base-content h-screen">
     <div class="navbar bg-base-100 text-base-content shadow-sm absolute top-0 z-10">
-        <div class="flex items-center m-2">
+        <div class="flex items-center justify-end m-2">
             <button onclick={() => showThemeMenu = !showThemeMenu} class="w-32 btn btn-light uppercase">{theme}</button>
             <input type="checkbox" bind:value={theme} class="theme-controller invisible" checked/>
             {#if showThemeMenu}
@@ -355,6 +377,10 @@
                     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                 </svg>
             </label>
+            <div role="tablist" class="tabs tabs-border">
+                <a role="tab" class={tab === 'logs' ? 'tab tab-active text-base-content' : 'tab text-base-content'} onclick={() => tab = 'logs'}>Logs</a>
+                <a role="tab" class={tab === 'wrap' ? 'tab tab-active text-base-content' : 'tab text-base-content'} onclick={() => tab = 'wrap'}>Wrap Chop</a>
+            </div>
         </div>
     </div>
     {#if loading}
@@ -370,24 +396,19 @@
         </div>
     {:else}
         <div class="{loading ? 'hidden' : ''}">
-            <div class="flex flex-col items-center mt-8 mb-4">
-                <div class="text-xl font-bold mt-16 mb-4">
-                    Tools
-                </div>
-                <div role="tablist" class="tabs tabs-border">
-                    <a role="tab" class={tab === 'logs' ? 'tab tab-active text-base-content' : 'tab text-base-content'} onclick={() => tab = 'logs'}>Logs</a>
-                    <a role="tab" class={tab === 'wrap' ? 'tab tab-active text-base-content' : 'tab text-base-content'} onclick={() => tab = 'wrap'}>Wrap Chop</a>
-                </div>
-            </div>
-
+            <!-- Logs Index -->
             <div class="mx-auto max-w-screen-xl px-6 py-12 font-sans mpy-16 lg:py-0 {tab === 'logs' ? '' : 'hidden'}">
+                <Report {page} {totalPages} getData={getLogs} />
+            </div>
+            <!-- Log Formatter -->
+            <div class="mx-auto max-w-screen-xl px-6 py-12 font-sans mpy-16 lg:py-0 {tab === 'format' ? '' : 'hidden'}">
                 <div class="my-4">
                     <input type="file" accept=".txt" onchange={handleFileUpload} class="file-input file-input-primary w-full max-w-xs mb-4"/>
                 </div>
                 <div class="flex mb-2 justify-between">
                     <div role="tablist" class="tabs tabs-border">
                         <a role="tab" class={logTab === 'raw' ? 'tab tab-active text-base-content' : 'tab text-base-content'}
-                           onclick={() => {logTab = 'raw'; enablePublish = false;}}>Raw</a>
+                           onclick={() => {logTab = 'raw'; checkPublish = false;}}>Raw</a>
                         <a role="tab" class={logTab === 'format' ? 'tab tab-active text-base-content' : 'tab text-base-content'}
                            onclick={() => {highlight(editableLog); logTab = 'format';}}>Formatted</a>
                     </div>
@@ -406,6 +427,7 @@
                     {@html highlightedLog}
                 </div>
             </div>
+            <!-- Wrap Chop -->
             <div class="flex lg:justify-center flex-wrap sm:items-center mitems-center sm:flex-col mflex-col lg:flex-row gap-4 {tab === 'wrap' ? '' : 'hidden'}">
                 <fieldset class="fieldset">
                     <div class="flex justify-between">

@@ -17,7 +17,7 @@ export default {
   build: {
     manifest: true,
     rollupOptions: {
-        input: 'main.js',
+        input: 'js/main.js',
         output: {
             entryFileNames: '[name].[hash].js',
             assetFileNames: '[name].[hash].[ext]',
