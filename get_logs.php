@@ -10,9 +10,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $data = json_decode(file_get_contents('php://input'), true);
-$page = $data['page'] ?? '';
+$page = $data['page'] ?? null;
 
-if (!$page) {
+if (is_null($page)) {
     http_response_code(400);
     echo json_encode(['error' => 'Missing parameter']);
     exit;
@@ -26,4 +26,8 @@ $stmt->bind_param("ii", $perpage, $offset);
 $stmt->execute();
 $result = $stmt->get_result();
 $data = $result->fetch_all(MYSQLI_ASSOC);
-echo json_encode($data);
+// Get count for page calculations.
+$stmt = $mysqli->prepare("SELECT COUNT(*) AS total FROM cf_logs");
+$stmt->execute();
+$stmt->bind_result($total);
+echo json_encode((object) ['page' => $page, 'totalPages' => ceil($total / 20), 'rows' => $data]);

@@ -65,14 +65,18 @@
     let rawText = $state('');
     let choppedText = $state('');
     let logTab = $state('raw');
-    let tab = $state('logs');
+    let tab = $state('');
     let wrapTab = $state(localStorage.getItem('wrapTab') ?? 'desc');
     let noReturn = $state(JSON.parse(localStorage.getItem('noReturn') ?? 'true'));
     let editorElement = null;
     let view = null;
     let loading = $state(true);
     let showCopy = $state(false);
-    let enablePublish = $state(false);
+    let enablePublish = $derived.by(() => {
+        return logTab === 'format' && title.length > 4 && highlightedLog !== '' && !publishing
+    });
+    let title = $state('');
+    let publishing = $state(false);
 
 
     // Initialize the editor
@@ -83,6 +87,7 @@
                 loading = false;
             });
         } else {
+            tab = 'logs';
             const updateListener = EditorView.updateListener.of((update) => {
                 if (update.docChanged) {
                     editableLog = update.state.doc.toString();
@@ -216,9 +221,6 @@
             .replace(/^You have been KILLED!!.*$/gm, '<span class="text-yellow-300 font-bold">$&</span>')
             // health statuses
             .replace(/^.* (is in perfect health|has a few scratches|has some small but disgusting cuts|is covered with bleeding wounds|is gushing blood|is writhing in agony|is convulsing on the ground)\..*$/gm, '<span class="text-green-400">$&</span>');
-        if (highlightedLog) {
-            enablePublish = true;
-        }
     }
 
     function stripHtml(str) {
@@ -232,7 +234,7 @@
     }
 
     function getLog(id) {
-        return fetch(`/load_log.php?id=${encodeURIComponent(id)}`)
+        return fetch(`/cf/load_log.php?id=${encodeURIComponent(id)}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -248,8 +250,8 @@
 
     function getLogs(page) {
         return new Promise((resolve, reject) => {
-            fetch('/get_logs.php', {
-                method: 'GET',
+            fetch('/cf/get_logs.php', {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -266,30 +268,37 @@
     }
 
     function publishLog() {
-        enablePublish = false;
+        publishing = true;
         const charCount = editableLog.length;
         if (charCount > 500000) {
-            enablePublish = false;
+            publishing = false;
             message = 'Log too long!';
             setTimeout(() => {
                 message = '';
             }, 3000);
+        } else if (title.length < 5) {
+            publishing = false;
+            message = 'Title must be at least 5 characters.';
+            setTimeout(() => {
+                message = '';
+            }, 3000);
         } else {
-            return fetch('/save_log.php', {
+            return fetch('/cf/save_log.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({log: editableLog})
+                body: JSON.stringify({log: editableLog, title: title})
             })
                 .then(response => {
                     if (!response.ok) throw new Error('Network response was not ok');
                     return response.json();
                 })
                 .then(data => {
-                    window.location.href = `/index.php?id=${data.id}`;
+                    window.location.href = `/cf?id=${data.id}`;
                 })
                 .catch(error => {
+                    publishing = false;
                     console.error('Save log failed:', error);
                     // You can reject or show UI feedback here
                 });
@@ -312,72 +321,82 @@
         }
     }
 
+    function viewLog(row) {
+        location.href = `/cf?id=${row.id}`;
+    }
+
+    function goToHome() {
+        location.href = '/cf';
+    }
+
 </script>
 
 <div class="bg-base-200 text-base-content h-screen">
-    <div class="navbar bg-base-100 text-base-content shadow-sm absolute top-0 z-10">
-        <div class="flex items-center justify-end m-2">
-            <button onclick={() => showThemeMenu = !showThemeMenu} class="w-32 btn btn-light uppercase">{theme}</button>
-            <input type="checkbox" bind:value={theme} class="theme-controller invisible" checked/>
-            {#if showThemeMenu}
-                <div class="absolute left-0 top-full join join-vertical">
-                    {#if darkMode}
-                        {#each darkThemes as dark}
-                            <input
-                                    onchange={() => showThemeMenu = false}
-                                    type="radio"
-                                    name="theme-buttons"
-                                    class="btn join-item"
-                                    bind:group={darkTheme}
-                                    aria-label={dark}
-                                    value={dark}/>
-                        {/each}
-                    {:else}
-                        {#each lightThemes as light}
-                            <input
-                                    onchange={() => showThemeMenu = false}
-                                    type="radio"
-                                    name="theme-buttons"
-                                    class="btn join-item"
-                                    bind:group={lightTheme}
-                                    aria-label={light}
-                                    value={light}/>
-                        {/each}
-                    {/if}
-                </div>
-            {/if}
-            <label class="flex cursor-pointer gap-2">
-                <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="5"/>
-                    <path
-                            d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>
-                </svg>
-                <input type="checkbox" bind:checked={darkMode} class="toggle"/>
-                <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                </svg>
-            </label>
+    <div class="navbar px-12 xl:px-48 bg-base-100 text-base-content shadow-sm absolute top-0 z-10">
+        <div class="flex items-center justify-between my-2 w-full gap-4">
+            <div class="flex items-center">
+                <button onclick={() => showThemeMenu = !showThemeMenu} class="w-32 btn btn-light uppercase">{theme}</button>
+                <input type="checkbox" bind:value={theme} class="theme-controller invisible" checked/>
+                {#if showThemeMenu}
+                    <div class="absolute left-0 top-full join join-vertical">
+                        {#if darkMode}
+                            {#each darkThemes as dark}
+                                <input
+                                        onchange={() => showThemeMenu = false}
+                                        type="radio"
+                                        name="theme-buttons"
+                                        class="btn join-item"
+                                        bind:group={darkTheme}
+                                        aria-label={dark}
+                                        value={dark}/>
+                            {/each}
+                        {:else}
+                            {#each lightThemes as light}
+                                <input
+                                        onchange={() => showThemeMenu = false}
+                                        type="radio"
+                                        name="theme-buttons"
+                                        class="btn join-item"
+                                        bind:group={lightTheme}
+                                        aria-label={light}
+                                        value={light}/>
+                            {/each}
+                        {/if}
+                    </div>
+                {/if}
+                <label class="flex cursor-pointer gap-2">
+                    <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"/>
+                        <path
+                                d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>
+                    </svg>
+                    <input type="checkbox" bind:checked={darkMode} class="toggle"/>
+                    <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </label>
+            </div>
             <div role="tablist" class="tabs tabs-border">
-                <a role="tab" class={tab === 'logs' ? 'tab tab-active text-base-content' : 'tab text-base-content'} onclick={() => tab = 'logs'}>Logs</a>
-                <a role="tab" class={tab === 'wrap' ? 'tab tab-active text-base-content' : 'tab text-base-content'} onclick={() => tab = 'wrap'}>Wrap Chop</a>
+                <a role="tab" class={tab === 'logs' || tab === 'format' ? 'tab tab-active text-base-content' : 'tab text-base-content'} onclick={goToHome}>Logs</a>
+                <a role="tab" class={tab === 'wrap' ? 'tab tab-active text-base-content' : 'tab text-base-content'} onclick={() => {tab = 'wrap'; id = null;}}>Wrap Chop</a>
             </div>
         </div>
     </div>
@@ -395,29 +414,30 @@
     {:else}
         <div class="{loading ? 'hidden' : ''}">
             <!-- Logs Index -->
-            <div class="mx-auto max-w-screen-xl px-6 py-12 font-sans mpy-16 lg:py-0 {tab === 'logs' ? '' : 'hidden'}">
-                <button type="button" onclick={() => tab = 'format'}>Add</button>
-                <Report {page} {totalPages} getData={getLogs} />
-            </div>
+            {#if tab === 'logs'}
+                <div class="xl:px-48 px-12 py-32 font-sans {tab === 'logs' ? '' : 'hidden'}">
+                    <button class="btn btn-primary" type="button" onclick={() => tab = 'format'}>Add</button>
+                    <Report getData={getLogs} actions={[{display: 'View', execute: viewLog}]} />
+                </div>
+            {/if}
             <!-- Log Formatter -->
-            <div class="mx-auto max-w-screen-xl px-6 py-12 font-sans mpy-16 lg:py-0 {tab === 'format' ? '' : 'hidden'}">
-                <button type="button" onclick={() => tab = 'logs'}>Log Index</button>
+            <div class="xl:px-48 px-12 py-32 font-sans {tab === 'format' ? '' : 'hidden'}">
+                <button class="btn btn-neutral" type="button" onclick={() => tab = 'logs'}>Back to index</button>
                 <div class="my-4">
                     <input type="file" accept=".txt" onchange={handleFileUpload} class="file-input file-input-primary w-full max-w-xs mb-4"/>
                 </div>
                 <div class="flex mb-2 justify-between">
                     <div role="tablist" class="tabs tabs-border">
                         <a role="tab" class={logTab === 'raw' ? 'tab tab-active text-base-content' : 'tab text-base-content'}
-                           onclick={() => {logTab = 'raw'; checkPublish = false;}}>Raw</a>
+                           onclick={() => {logTab = 'raw'; enablePublish = false;}}>Raw</a>
                         <a role="tab" class={logTab === 'format' ? 'tab tab-active text-base-content' : 'tab text-base-content'}
                            onclick={() => {highlight(editableLog); logTab = 'format';}}>Formatted</a>
                     </div>
                     {#if message}
                         <div transition:fade class="text-red-500 self-center p-2">{message}</div>
                     {/if}
-                    {#if enablePublish}
-                        <button onclick={publishLog} class="btn btn-primary {logTab === 'format' ? '' : 'hidden'}">Publish</button>
-                    {/if}
+                    <button onclick={publishLog} class="btn btn-primary {logTab === 'format' ? '' : 'hidden'}" disabled={!enablePublish}>Publish</button>
+                    <input type="text" placeholder="Title" bind:value={title} class="input" />
                 </div>
 
                 <div class="bg-base-300 {logTab === 'raw' ? '' : 'hidden'}">
@@ -428,7 +448,7 @@
                 </div>
             </div>
             <!-- Wrap Chop -->
-            <div class="flex lg:justify-center flex-wrap sm:items-center mitems-center sm:flex-col mflex-col lg:flex-row gap-4 {tab === 'wrap' ? '' : 'hidden'}">
+            <div class="flex py-32 lg:justify-center flex-wrap sm:items-center sm:flex-col mflex-col lg:flex-row gap-4 {tab === 'wrap' ? '' : 'hidden'}">
                 <fieldset class="fieldset">
                     <div class="flex justify-between">
                         <legend class="fieldset-legend text-base">Original</legend>

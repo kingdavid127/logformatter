@@ -3,8 +3,8 @@
     import Pagination from "./Pagination.svelte";
 
     let {
-        page = 0,
-        totalPages = 0,
+        page = 1,
+        totalPages = 1,
         getData = () => {},
         actions = [],
         className = ''
@@ -34,6 +34,7 @@
     function changePage(page) {
         loading = true;
         getData(page).then(data => {
+            console.log(data);
             page = data.page;
             totalPages = data.totalPages;
             rows = data.rows;
@@ -42,58 +43,60 @@
     }
 </script>
 
-{#if loading}
-    <div class="loading loading-ring loading-xl"></div>
-{:else if rows.length > 0}
-    <table class={classes}>
-        <thead>
-            <tr>
-                {#each columns as column}
-                    <th scope="col" class="uppercase">{column}</th>
-                {/each}
-                {#if actions.length > 0}
-                    <th scope="col" class="uppercase">Actions</th>
-                {/if}
-            </tr>
-        </thead>
-        <tbody>
-            {#each display as row}
+<div class="mt-4 w-full h-full">
+    {#if loading}
+        <div class="fixed top-1/2 left-1/2 loading loading-ring loading-xl"></div>
+    {:else if rows.length > 0}
+        <table class={classes}>
+            <thead>
                 <tr>
                     {#each columns as column}
-                        {#if column in row}
-                            {#if isObject(row[column])}
-                                <td>
-                                    <ul class="list-none">
-                                        {#each Object.entries(row[column]) as [key, value]}
-                                            <li>{key}: {value}</li>
-                                        {/each}
-                                    </ul>
-                                </td>
-                            {:else}
-                                <td>
-                                    {row[column]}
-                                </td>
-                            {/if}
-                        {:else}
-                            <td></td>
-                        {/if}
+                        <th scope="col" class="uppercase">{column}</th>
                     {/each}
                     {#if actions.length > 0}
-                        <td>
-                            {#each actions as action}
-                                <button class="btn btn-neutral" onclick={() => action.execute(row)}>
-                                    {action.display}
-                                </button>
-                            {/each}
-                        </td>
+                        <th scope="col" class="uppercase">Actions</th>
                     {/if}
                 </tr>
-            {/each}
-        </tbody>
-    </table>
-    {#if totalPages > 0}
-        <Pagination currentPage={page} totalPages={totalPages} goToPage={changePage} />
+            </thead>
+            <tbody>
+                {#each rows as row}
+                    <tr>
+                        {#each columns as column}
+                            {#if column in row}
+                                {#if isObject(row[column])}
+                                    <td>
+                                        <ul class="list-none">
+                                            {#each Object.entries(row[column]) as [key, value]}
+                                                <li>{key}: {value}</li>
+                                            {/each}
+                                        </ul>
+                                    </td>
+                                {:else}
+                                    <td>
+                                        {row[column]}
+                                    </td>
+                                {/if}
+                            {:else}
+                                <td></td>
+                            {/if}
+                        {/each}
+                        {#if actions.length > 0}
+                            <td>
+                                {#each actions as action}
+                                    <button class="btn btn-neutral" onclick={() => action.execute(row)}>
+                                        {action.display}
+                                    </button>
+                                {/each}
+                            </td>
+                        {/if}
+                    </tr>
+                {/each}
+            </tbody>
+        </table>
+        {#if totalPages > 1}
+            <Pagination currentPage={page} totalPages={totalPages} goToPage={changePage} />
+        {/if}
+    {:else}
+        <div class="mt-4">No records found.</div>
     {/if}
-{:else}
-    <p>No records found.</p>
-{/if}
+</div>
