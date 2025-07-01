@@ -331,8 +331,8 @@
 
 </script>
 
-<div class="bg-base-200 text-base-content h-screen">
-    <div class="navbar px-12 xl:px-48 bg-base-100 text-base-content shadow-sm absolute top-0 z-10">
+<div class="bg-base-200 text-base-content h-screen flex flex-col overflow-hidden">
+    <div class="navbar px-4 xl:px-48 bg-base-100 text-base-content shadow-sm sticky top-0 left-0 right-0 z-10">
         <div class="flex items-center justify-between my-2 w-full gap-4">
             <div class="flex items-center">
                 <button onclick={() => showThemeMenu = !showThemeMenu} class="w-32 btn btn-light uppercase">{theme}</button>
@@ -400,103 +400,105 @@
             </div>
         </div>
     </div>
-    {#if loading}
-        <div class="flex justify-center items-center">
-            <div class="loading loading-ring loading-xl text-primary"></div>
-        </div>
-    {/if}
-    {#if id}
-        <div class="mx-auto max-w-screen-xl px-6 pt-20 font-sans {loading ? 'hidden' : ''}">
-            <div class="pl-4 {darkMode ? 'bg-base-300' : 'bg-base-100'} font-mono whitespace-pre">
-                {@html highlightedLog}
+    <div class="flex-1 overflow-y-auto">
+        {#if loading}
+            <div class="flex justify-center items-center">
+                <div class="loading loading-ring loading-xl text-primary"></div>
             </div>
-        </div>
-    {:else}
-        <div class="{loading ? 'hidden' : ''}">
-            <!-- Logs Index -->
-            {#if tab === 'logs'}
-                <div class="xl:px-48 px-12 py-32 font-sans {tab === 'logs' ? '' : 'hidden'}">
-                    <button class="btn btn-primary" type="button" onclick={() => tab = 'format'}>Add</button>
-                    <Report getData={getLogs} actions={[{display: 'View', execute: viewLog}]} />
-                </div>
-            {/if}
-            <!-- Log Formatter -->
-            <div class="xl:px-48 px-12 py-32 font-sans {tab === 'format' ? '' : 'hidden'}">
-                <button class="btn btn-neutral" type="button" onclick={() => tab = 'logs'}>Back to index</button>
-                <div class="my-4">
-                    <input type="file" accept=".txt" onchange={handleFileUpload} class="file-input file-input-primary w-full max-w-xs mb-4"/>
-                </div>
-                <div class="flex mb-2 justify-between">
-                    <div role="tablist" class="tabs tabs-border">
-                        <a role="tab" class={logTab === 'raw' ? 'tab tab-active text-base-content' : 'tab text-base-content'}
-                           onclick={() => {logTab = 'raw'; enablePublish = false;}}>Raw</a>
-                        <a role="tab" class={logTab === 'format' ? 'tab tab-active text-base-content' : 'tab text-base-content'}
-                           onclick={() => {highlight(editableLog); logTab = 'format';}}>Formatted</a>
-                    </div>
-                    {#if message}
-                        <div transition:fade class="text-red-500 self-center p-2">{message}</div>
-                    {/if}
-                    <button onclick={publishLog} class="btn btn-primary {logTab === 'format' ? '' : 'hidden'}" disabled={!enablePublish}>Publish</button>
-                    <input type="text" placeholder="Title" bind:value={title} class="input" />
-                </div>
-
-                <div class="bg-base-300 {logTab === 'raw' ? '' : 'hidden'}">
-                    <div bind:this={editorElement} class="text-base"></div>
-                </div>
-                <div class="pl-4 {darkMode ? 'bg-base-300' : 'bg-base-100'} font-mono whitespace-pre {logTab === 'format' ? '' : 'hidden'}">
+        {/if}
+        {#if id}
+            <div class="mx-auto px-2 xl:px-48 font-sans {loading ? 'hidden' : ''}">
+                <div class="pl-4 w-full h-full overflow-auto {darkMode ? 'bg-base-300' : 'bg-base-100'} font-mono whitespace-pre">
                     {@html highlightedLog}
                 </div>
             </div>
-            <!-- Wrap Chop -->
-            <div class="flex py-32 lg:justify-center flex-wrap sm:items-center sm:flex-col mflex-col lg:flex-row gap-4 {tab === 'wrap' ? '' : 'hidden'}">
-                <fieldset class="fieldset">
-                    <div class="flex justify-between">
-                        <legend class="fieldset-legend text-base">Original</legend>
-                        <button onclick={clearWrap} class="btn btn-neutral">Clear</button>
+        {:else}
+            <div class="{loading ? 'hidden' : ''}">
+                <!-- Logs Index -->
+                {#if tab === 'logs'}
+                    <div class="xl:px-48 px-4 py-8 font-sans {tab === 'logs' ? '' : 'hidden'}">
+                        <button class="btn btn-primary" type="button" onclick={() => tab = 'format'}>Add</button>
+                        <Report getData={getLogs} actions={[{display: 'View', execute: viewLog}]} />
                     </div>
-                    <textarea class="textarea h-96 w-[475px]" bind:value={rawText}></textarea>
-                </fieldset>
-                <div class="self-center">
-                    <div class="text-base mb-2 font-bold">Wrap settings</div>
-                    <ul class="menu bg-base-200 rounded-box w-56 p-0">
-                        <li>
-                            <a class={wrapTab === 'desc' ? 'menu-active text-white' : 'text-base-content'}
-                               onclick={() => wrapTab = 'desc'}
-                            >
-                                Description
-                            </a>
-                        </li>
-                        <li>
-                            <a class={wrapTab === 'note' ? 'menu-active text-white' : 'text-base-content'}
-                               onclick={() => wrapTab = 'note'}
-                            >
-                                Note
-                            </a>
-                        </li>
-                        <li>
-                            <a class={wrapTab === 'role' ? 'menu-active text-white' : 'text-base-content'}
-                               onclick={() => wrapTab = 'role'}
-                            >
-                                Role
-                            </a>
-                        </li>
-                    </ul>
-                    <label class="label text-base-content">
-                        <input type="checkbox" bind:checked={noReturn} class="checkbox checkbox-sm"/>
-                        No return (; format)
-                    </label>
-                </div>
-                <fieldset class="fieldset">
-                    <div class="flex justify-between">
-                        <legend class="fieldset-legend text-base">Chopped</legend>
-                        {#if showCopy}
-                            <div transition:fade class="text-sm self-end mr-2">Copied!</div>
+                {/if}
+                <!-- Log Formatter -->
+                <div class="xl:px-48 px-4 py-8 font-sans {tab === 'format' ? '' : 'hidden'}">
+                    <button class="btn btn-neutral" type="button" onclick={() => tab = 'logs'}>Back to index</button>
+                    <div class="my-4">
+                        <input type="file" accept=".txt" onchange={handleFileUpload} class="file-input file-input-primary w-full max-w-xs mb-4"/>
+                    </div>
+                    <div class="flex mb-2 justify-between">
+                        <div role="tablist" class="tabs tabs-border">
+                            <a role="tab" class={logTab === 'raw' ? 'tab tab-active text-base-content' : 'tab text-base-content'}
+                               onclick={() => {logTab = 'raw'; enablePublish = false;}}>Raw</a>
+                            <a role="tab" class={logTab === 'format' ? 'tab tab-active text-base-content' : 'tab text-base-content'}
+                               onclick={() => {highlight(editableLog); logTab = 'format';}}>Formatted</a>
+                        </div>
+                        {#if message}
+                            <div transition:fade class="text-red-500 self-center p-2">{message}</div>
                         {/if}
-                        <button onclick={copyToClipboard} class="btn btn-neutral">Copy</button>
+                        <button onclick={publishLog} class="btn btn-primary {logTab === 'format' ? '' : 'hidden'}" disabled={!enablePublish}>Publish</button>
+                        <input type="text" placeholder="Title" bind:value={title} class="input" />
                     </div>
-                    <textarea class="textarea h-96 w-[575px]">{choppedText}</textarea>
-                </fieldset>
+
+                    <div class="bg-base-300 {logTab === 'raw' ? '' : 'hidden'}">
+                        <div bind:this={editorElement} class="text-base"></div>
+                    </div>
+                    <div class="pl-4 {darkMode ? 'bg-base-300' : 'bg-base-100'} font-mono whitespace-pre {logTab === 'format' ? '' : 'hidden'}">
+                        {@html highlightedLog}
+                    </div>
+                </div>
+                <!-- Wrap Chop -->
+                <div class="flex py-8 px-4 justify-center flex-wrap items-center flex-col xl:flex-row gap-4 {tab === 'wrap' ? '' : 'hidden'}">
+                    <fieldset class="fieldset">
+                        <div class="flex justify-between">
+                            <legend class="fieldset-legend text-base">Original</legend>
+                            <button onclick={clearWrap} class="btn btn-neutral">Clear</button>
+                        </div>
+                        <textarea class="textarea h-96 w-[350px] sm:w-[475px]" bind:value={rawText}></textarea>
+                    </fieldset>
+                    <div class="self-center">
+                        <div class="text-base mb-2 font-bold">Wrap settings</div>
+                        <ul class="menu bg-base-200 rounded-box w-56 p-0">
+                            <li>
+                                <a class={wrapTab === 'desc' ? 'menu-active text-white' : 'text-base-content'}
+                                   onclick={() => wrapTab = 'desc'}
+                                >
+                                    Description
+                                </a>
+                            </li>
+                            <li>
+                                <a class={wrapTab === 'note' ? 'menu-active text-white' : 'text-base-content'}
+                                   onclick={() => wrapTab = 'note'}
+                                >
+                                    Note
+                                </a>
+                            </li>
+                            <li>
+                                <a class={wrapTab === 'role' ? 'menu-active text-white' : 'text-base-content'}
+                                   onclick={() => wrapTab = 'role'}
+                                >
+                                    Role
+                                </a>
+                            </li>
+                        </ul>
+                        <label class="label text-base-content">
+                            <input type="checkbox" bind:checked={noReturn} class="checkbox checkbox-sm"/>
+                            No return (; format)
+                        </label>
+                    </div>
+                    <fieldset class="fieldset">
+                        <div class="flex justify-between">
+                            <legend class="fieldset-legend text-base">Chopped</legend>
+                            {#if showCopy}
+                                <div transition:fade class="text-sm self-end mr-2">Copied!</div>
+                            {/if}
+                            <button onclick={copyToClipboard} class="btn btn-neutral">Copy</button>
+                        </div>
+                        <textarea class="textarea h-96 w-[350px] sm:w-[575px]">{choppedText}</textarea>
+                    </fieldset>
+                </div>
             </div>
-        </div>
-    {/if}
+        {/if}
+    </div>
 </div>
