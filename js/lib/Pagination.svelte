@@ -2,7 +2,7 @@
 <script>
     import PaginationItem from "./PaginationItem.svelte";
 
-    let { currentPage, totalPages, goToPage } = $props();
+    let { currentPage, totalPages, goToPage, class: className = '' } = $props();
     let pages = $state([]);
     let prevPage = $state(0);
     let nextPage = $state(0);
@@ -87,14 +87,7 @@
 </script>
 
 <style>
-    .local_nexus-pagination {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 2rem;
-    }
-
-    .local_nexus-goto {
+    .goto {
         display: flex;
         align-items: center;
         height: 37px;
@@ -102,28 +95,28 @@
     }
 </style>
 
-<nav aria-label="Page navigation" class="local_nexus-pagination">
-    <ul class="pagination">
+<nav aria-label="Page navigation" class={className}>
+    <div class="join">
         <PaginationItem page={prevPage} {currentPage} {goToPage} label="Previous" />
         {#if nextPage <= totalPages}
             <PaginationItem page={nextPage} {currentPage} {goToPage} label="Next" />
         {:else}
             <PaginationItem page={0} {currentPage} {goToPage} label="Next" />
         {/if}
-    </ul>
-    <ul class="pagination">
+    </div>
+    <div class="join">
         {#each pages as page}
             <PaginationItem {page} {currentPage} {goToPage} />
         {/each}
-    </ul>
+    </div>
 
     {#if showGoTo}
-        <div class="local_nexus-goto">
-            <label class="mb-0" for="local_nexus-goto-input">Go to page:</label>
+        <div class="goto mt-4">
+            <label class="mb-0" for="goto-input">Go to page:</label>
             <input
                     type="number"
-                    id="local_nexus-goto-input"
-                    class="page-link"
+                    id="goto-input"
+                    class="input w-[75px]"
                     bind:value={inputValue}
                     min="1"
                     max={totalPages}

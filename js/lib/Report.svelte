@@ -31,9 +31,9 @@
         return value !== null && typeof value === 'object';
     }
 
-    function changePage(page) {
+    function changePage(newPage) {
         loading = true;
-        getData(page).then(data => {
+        getData(newPage).then(data => {
             console.log(data);
             page = data.page;
             totalPages = data.totalPages;
@@ -94,7 +94,7 @@
             </tbody>
         </table>
         {#if totalPages > 1}
-            <Pagination currentPage={page} totalPages={totalPages} goToPage={changePage} />
+            <Pagination class="mt-8" currentPage={page} totalPages={totalPages} goToPage={changePage} />
         {/if}
     {:else}
         <div class="mt-4">No records found.</div>

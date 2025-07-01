@@ -5,11 +5,9 @@
 
     $effect(() => {
         if (page === currentPage) {
-            classes = 'page-item active';
-        } else if (page === 0) {
-            classes = 'page-item disabled';
+            classes = 'join-item btn btn-active';
         } else {
-            classes = 'page-item';
+            classes = 'join-item btn';
         }
     });
 
@@ -18,22 +16,20 @@
     }
 </script>
 
-<li class={classes}>
-    {#if page === 0}
-        <div class="page-link">
-            {#if label}
-                {label}
-            {:else}
-                <i class="fa fa-ellipsis fa-icon"></i>
-            {/if}
-        </div>
-    {:else}
-        <button onclick={choosePage} class="page-link" aria-current={currentPage === page ? 'page' : undefined}>
-            {#if label}
-                {label}
-            {:else}
-                {page}
-            {/if}
-        </button>
-    {/if}
-</li>
+{#if page === 0}
+    <div class={classes}>
+        {#if label}
+            {label}
+        {:else}
+            ...
+        {/if}
+    </div>
+{:else}
+    <button onclick={choosePage} class={classes} aria-current={currentPage === page ? 'page' : undefined} disabled={page === 0}>
+        {#if label}
+            {label}
+        {:else}
+            {page}
+        {/if}
+    </button>
+{/if}

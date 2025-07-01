@@ -18,10 +18,10 @@ if (is_null($page)) {
     exit;
 }
 
-$perpage = 20;
+$perpage = 10;
 $offset = ($page - 1) * $perpage;
 
-$stmt = $mysqli->prepare("SELECT id, title, timecreated FROM cf_logs ORDER BY timecreated DESC LIMIT ? OFFSET ?");
+$stmt = $mysqli->prepare("SELECT id, title, timecreated FROM cf_logs ORDER BY id DESC LIMIT ? OFFSET ?");
 $stmt->bind_param("ii", $perpage, $offset);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -30,4 +30,5 @@ $data = $result->fetch_all(MYSQLI_ASSOC);
 $stmt = $mysqli->prepare("SELECT COUNT(*) AS total FROM cf_logs");
 $stmt->execute();
 $stmt->bind_result($total);
-echo json_encode((object) ['page' => $page, 'totalPages' => ceil($total / 20), 'rows' => $data]);
+$stmt->fetch();
+echo json_encode((object) ['page' => $page, 'totalPages' => ceil($total / $perpage), 'rows' => $data]);
