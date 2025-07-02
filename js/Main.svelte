@@ -248,14 +248,17 @@
             });
     }
 
-    function getLogs(page) {
+    function getLogs(page, search = '') {
         return new Promise((resolve, reject) => {
             fetch('/cf/get_logs.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({page: page})
+                body: JSON.stringify({
+                    page: page,
+                    search: search
+                })
             })
             .then(response => {
                 if (!response.ok) throw new Error('Network response was not ok');
@@ -418,7 +421,7 @@
                 {#if tab === 'logs'}
                     <div class="xl:px-48 px-4 py-8 font-sans {tab === 'logs' ? '' : 'hidden'}">
                         <button class="btn btn-primary" type="button" onclick={() => tab = 'format'}>Add</button>
-                        <Report getData={getLogs} actions={[{display: 'View', execute: viewLog}]} />
+                        <Report getData={getLogs} actions={[{display: 'View', execute: viewLog}]} allowSearch={true} />
                     </div>
                 {/if}
                 <!-- Log Formatter -->
