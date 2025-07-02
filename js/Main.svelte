@@ -77,6 +77,7 @@
     });
     let title = $state('');
     let publishing = $state(false);
+    let search = $state('');
 
 
     // Initialize the editor
@@ -248,7 +249,7 @@
             });
     }
 
-    function getLogs(page, search = '') {
+    function getLogs(page) {
         return new Promise((resolve, reject) => {
             fetch('/cf/get_logs.php', {
                 method: 'POST',
@@ -420,8 +421,11 @@
                 <!-- Logs Index -->
                 {#if tab === 'logs'}
                     <div class="xl:px-48 px-4 py-8 font-sans {tab === 'logs' ? '' : 'hidden'}">
-                        <button class="btn btn-primary" type="button" onclick={() => tab = 'format'}>Add</button>
-                        <Report getData={getLogs} actions={[{display: 'View', execute: viewLog}]} allowSearch={true} />
+                       <div class="flex justify-between">
+ <button class="btn btn-primary" type="button" onclick={() => tab = 'format'}>Add</button>
+<input type="text" class="input" bind:value={search} />
+</div>
+                        <Report getData={getLogs} actions={[{display: 'View', execute: viewLog}]} />
                     </div>
                 {/if}
                 <!-- Log Formatter -->
