@@ -21,6 +21,7 @@ $search = $data['search'] ?? null;
 $perpage = 10;
 $offset = ($page - 1) * $perpage;
 
+// TODO: Validate only letters numbers and double quotes allowed.
 if (!is_null($search)) {
 // Prepare the full-text version (BOOLEAN MODE with required words)
 $match_query = '+' . implode(' +', explode(' ', $search));
