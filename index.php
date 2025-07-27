@@ -11,12 +11,20 @@
     <head>
         <title>CF Log Formatter</title>
         <?php
+
+
+$title = 'Log Index';
+if (isset($_GET['id']) {
+    require_once 'db.php';
+    $stmt = $mysqli->prepare("SELECT title FROM cf_logs WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $logTitle = $stmt->get_result()->fetch_column();
+    $title = $logTitle ?? $title;
+}
             echo '<meta property="og:title" content="'.$title.'" />';
-            echo '<meta property="og:url" content="https://games.dimbi.org" />';
-        ?>
+?>
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="http://my.site.com/images/thumb.png" />
-        <meta property="og:description" content="Site description" />
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <?php foreach ($cssFiles as $css): ?>
