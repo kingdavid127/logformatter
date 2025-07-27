@@ -15,10 +15,10 @@
             if (isset($_GET['id'])) {
                 require_once 'db.php';
                 $stmt = $mysqli->prepare("SELECT title FROM cf_logs WHERE id = ?");
-                $stmt->bind_param("i", $id);
+                $stmt->bind_param("i", $_GET['id']);
                 $stmt->execute();
                 $logTitle = $stmt->get_result()->fetch_column();
-                $title = $logTitle ?? $title;
+                $title = $logTitle ? $logTitle : $title;
             }
             echo '<meta property="og:title" content="'.$title.'" />';
         ?>

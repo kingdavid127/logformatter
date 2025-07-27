@@ -410,8 +410,8 @@
             </div>
         {/if}
         {#if id}
-            <div class="py-4 mx-auto px-2 xl:px-48 font-sans {loading ? 'hidden' : ''}">
-                <div class="py-4 w-full">
+            <div class="pb-8 mx-auto px-2 xl:px-48 font-sans {loading ? 'hidden' : ''}">
+                <div class="pl-4 py-4 w-full">
                     <span class="font-bold text-lg">{title}</span>
                 </div>
                 <div class="pl-4 w-full h-full overflow-auto {darkMode ? 'bg-base-300' : 'bg-base-100'}">
