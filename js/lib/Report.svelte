@@ -34,7 +34,6 @@
     function changePage(newPage) {
         loading = true;
         getData(newPage).then(data => {
-            console.log(data);
             page = data.page;
             totalPages = data.totalPages;
             rows = data.rows;

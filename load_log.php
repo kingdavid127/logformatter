@@ -12,10 +12,10 @@ if ($id <= 0) {
     exit;
 }
 
-$stmt = $mysqli->prepare("SELECT log FROM cf_logs WHERE id = ?");
+$stmt = $mysqli->prepare("SELECT title, log FROM cf_logs WHERE id = ?");
 $stmt->bind_param("i", $id);
 $stmt->execute();
-$log = $stmt->get_result()->fetch_column();
+$log = $stmt->get_result()->fetch_object();
 
 if ($log === false) {
     http_response_code(404);

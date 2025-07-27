@@ -83,7 +83,10 @@
     onMount(() => {
         if (id) {
             getLog(id).then((log) => {
-                highlight(log);
+                console.log(log);
+                console.log(log.title);
+                title = log.title;
+                highlight(log.log);
                 loading = false;
             });
         } else {
@@ -190,7 +193,7 @@
             // (PK)
             .replace(/ \(PK\) /g, '<span class="text-yellow-300 font-bold">$&</span>')
             // damage verbs
-            .replace(/ misses|scratches|grazes|hits|injures|wounds|mauls|decimates|devastates|maims|MUTILATES|EVISCERATES|DISMEMBERS|MASSACRES|MANGLES|\*\*\* DEMOLISHES \*\*\*|\*\*\* DEVASATATES \*\*\*|=== OBLITERATES ===|>>> ANNIHILATES <<<|<<< ERADICATES >>>|does UNSPEAKABLE things /g, '<span class="text-yellow-300">$&</span>')
+            .replace(/ misses|scratches|grazes|hits|injures|wounds|mauls|decimates|devastates|maims|MUTILATES|EVISCERATES|DISMEMBERS|MASSACRES|MANGLES|\*\*\* DEMOLISHES \*\*\*|\*\*\* DEVASTATES \*\*\*|=== OBLITERATES ===|>>> ANNIHILATES <<<|<<< ERADICATES >>>|does UNSPEAKABLE things /g, '<span class="text-yellow-300">$&</span>')
             .replace(/ toasts|parches|heats|blisters|burns|roasts|smolders|scalds|singes|BROILS|SEARS|CHARS|RAZES|TORCHES|\*\*\* BLASTS \*\*\*|\*\*\* SCORCHES \*\*\*|=== INCINERATES ===|>>> CAUTERIZES <<<|<<< CREMATES >>> /g, '<span class="text-yellow-300">$&</span>')
             .replace(/ concerns|disquiets|daunts|scares|jolts|startles|flusters|alarms|stupefies|DISTRESSES|DISTURBS|STAGGERS|RATTLES|FRIGHTENS|\*\*\* TRAUMATIZES \*\*\*|\*\*\* HARROWS \*\*\*|=== TERRIFIES ===|>>> HORRIFIES <<<|<<< PETRIFIES >>> /g, '<span class="text-yellow-300">$&</span>')
             .replace(
@@ -407,9 +410,14 @@
             </div>
         {/if}
         {#if id}
-            <div class="mx-auto px-2 xl:px-48 font-sans {loading ? 'hidden' : ''}">
-                <div class="pl-4 w-full h-full overflow-auto {darkMode ? 'bg-base-300' : 'bg-base-100'} font-mono whitespace-pre">
-                    {@html highlightedLog}
+            <div class="py-8 mx-auto px-2 xl:px-48 font-sans {loading ? 'hidden' : ''}">
+                <div class="pl-4 w-full h-full overflow-auto {darkMode ? 'bg-base-300' : 'bg-base-100'}">
+                    <div class="py-4 w-full">
+                        <span class="font-bold text-lg">{title}</span>
+                    </div>
+                    <div class="w-full font-mono whitespace-pre">
+                        {@html highlightedLog}
+                    </div>
                 </div>
             </div>
         {:else}

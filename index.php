@@ -10,6 +10,13 @@
 <html>
     <head>
         <title>CF Log Formatter</title>
+        <?php
+            echo '<meta property="og:title" content="'.$title.'" />';
+            echo '<meta property="og:url" content="https://games.dimbi.org" />';
+        ?>
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="http://my.site.com/images/thumb.png" />
+        <meta property="og:description" content="Site description" />
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <?php foreach ($cssFiles as $css): ?>
