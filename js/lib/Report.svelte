@@ -12,6 +12,8 @@
     let classes = $state('table table-zebra ');
     let loading = $state(true);
     let rows = $state([]);
+    let search = $state('');
+    let actualSearch = $state('');
 
     onMount(() => {
         classes += className;
@@ -31,9 +33,9 @@
         return value !== null && typeof value === 'object';
     }
 
-    function changePage(newPage) {
+    function changePage(newPage = 1) {
         loading = true;
-        getData(newPage).then(data => {
+        getData(newPage, actualSearch).then(data => {
             page = data.page;
             totalPages = data.totalPages;
             rows = data.rows;
@@ -43,6 +45,10 @@
 </script>
 
 <div class="mt-4 w-full h-full">
+    <div class="flex mb-2">
+        <input class="input" type="text" placeholder="Search" bind:value={search} />
+        <button class="btn btn-primary ml-1" onclick={() => {actualSearch = search; changePage(1)}}>Search</button>
+    </div>
     {#if loading}
         <div class="fixed top-1/2 left-1/2 loading loading-ring loading-xl"></div>
     {:else if rows.length > 0}

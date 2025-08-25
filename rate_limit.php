@@ -18,6 +18,7 @@ if (count($history) >= $limit) {
     http_response_code(429);
     echo json_encode(['error' => 'Rate limit exceeded. Try again later.']);
     // If they get rate limited too many times, you could ban them here.
+    // TODO: Time them out here.
     exit;
 }
 

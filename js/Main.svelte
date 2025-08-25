@@ -251,14 +251,18 @@
             });
     }
 
-    function getLogs(page) {
+    function getLogs(page, search = null) {
         return new Promise((resolve, reject) => {
+            let body = {page: page};
+            if (search) {
+                body.search = search;
+            }
             fetch('/cf/get_logs.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({page: page})
+                body: JSON.stringify(body)
             })
             .then(response => {
                 if (!response.ok) throw new Error('Network response was not ok');
